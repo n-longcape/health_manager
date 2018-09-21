@@ -72,3 +72,34 @@ function replyDM(e, message){
   var response = UrlFetchApp.fetch(url, options)
   console.log(response.getContentText());
 }
+
+function buildLineChart(){
+  var sheet = getSpreadsheet();
+  var dates = sheet.getRange(1, 1, sheet.getLastRow(), 3).getValues();
+  var weights = sheet.getRange(1, 6, sheet.getLastRow(), 1).getValues();
+  var dataTable = Charts.newDataTable()
+                        .addColumn(Charts.ColumnType.DATE, 'date')
+                        .addColumn(Charts.ColumnType.NUMBER, 'weight');
+  
+  for(var i=0; i<sheet.getLastRow(); i++){
+    var date = new Date(dates[i][0], dates[i][1], dates[i][2])
+    dataTable.addRow([date, weights[i][0]])
+  }
+  
+  var chart = Charts.newLineChart()
+                    .setDataTable(dataTable)
+                    .setTitle('My Weight')
+                    .setTitleTextStyle(Charts.newTextStyle().setFontSize(40))
+                    .setDimensions(800, 600)
+                    .setColors(['#4aa0f7'])
+                    .setPointStyle(Charts.PointStyle.MEDIUM)
+                    .setOption('vAxis.minValue', 50)
+                    .setOption('vAxis.maxValue', 70)
+                    .setXAxisTextStyle(Charts.newTextStyle().setFontSize(13))
+                    .setXAxisTitle('Date').setXAxisTitleTextStyle(Charts.newTextStyle().setFontSize(20))
+                    .setYAxisTextStyle(Charts.newTextStyle().setFontSize(13))
+                    .setYAxisTitle('Weight').setYAxisTitleTextStyle(Charts.newTextStyle().setFontSize(20))
+                    .build()
+
+  return chart
+}
