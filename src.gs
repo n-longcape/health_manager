@@ -12,8 +12,13 @@ function doPost(e) {
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
 }
 
+var credentials = {
+  spreadSheetId:'<SpreadSheetID>',
+  slackToken:'<Bot User OAuth Access Token>'
+}
+
 function getSpreadsheet(){
-  var spreadsheetId = '<SpreadSheetID>';
+  var spreadsheetId = credentials['spreadSheetId'];
   var spreadsheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName('シート1');
   return spreadsheet;
 }
@@ -49,7 +54,7 @@ function messageIm(e) {
 
 function replyDM(e, message){
   var url = 'https://slack.com/api/chat.postMessage'
-  var token = '<Bot User OAuth Access Token>';
+  var token = credentials['slackToken'];
   
   var data = {
     'channel' : e.channel,
