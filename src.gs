@@ -12,10 +12,15 @@ function doPost(e) {
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
 }
 
+function getSpreadsheet(){
+  var spreadsheetId = '<SpreadSheetID>';
+  var spreadsheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName('シート1');
+  return spreadsheet;
+}
+
 function recodeWeight(w, utime){
   //console.log('recodeWeight');
-  var spreadsheetId = '<SpreadSheetID>'
-  var spreadsheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName('シート1');
+  var spreadsheet = getSpreadsheet();
   var d = new Date(utime*1000);
   spreadsheet.appendRow([d.getFullYear(), d.getMonth()+1, d.getDate(), d.getHours(), d.getMinutes(), w])
 }
@@ -61,5 +66,4 @@ function replyDM(e, message){
   
   var response = UrlFetchApp.fetch(url, options)
   console.log(response.getContentText());
-  
 }
