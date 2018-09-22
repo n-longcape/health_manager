@@ -63,10 +63,31 @@ function replyDM(e, message){
   };
   
   var options = {
-    'method' : 'post',
+    'method' : 'POST',
     'contentType' : 'application/json; charset=UTF-8',
     'headers' : {'Authorization': 'Bearer '+token},
     'payload' : JSON.stringify(data)
+  };
+  
+  var response = UrlFetchApp.fetch(url, options)
+  console.log(response.getContentText());
+}
+
+function uploadImage(channel, imageBlob){
+  var url = 'https://slack.com/api/files.upload';
+  var token = credentials['slackToken'];
+  
+  var data = {
+    channels: channel,
+    file: imageBlob,
+    filetype: 'png',
+    title: 'Chart',
+  };
+  
+  var options = {
+    'method': 'POST',
+    'headers': {'Authorization': 'Bearer '+token},
+    'payload': data
   };
   
   var response = UrlFetchApp.fetch(url, options)
@@ -103,3 +124,4 @@ function buildLineChart(){
 
   return chart
 }
+
