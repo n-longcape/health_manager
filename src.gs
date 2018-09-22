@@ -1,15 +1,26 @@
 function doPost(e) {
   var postData = JSON.parse(e.postData.getDataAsString());
+  
   var res = {};
-  console.log(postData);
   if(postData.type === 'url_verification') {
     res = {'challenge':postData.challenge}
   } else if(postData.type === 'event_callback'){
-    console.log('event_callback');
-    eventHandler(postData.event);
+    if(!eventIdProcessed(postData.event_id)){
+       eventHandler(postData.event);
+    }
   }
   
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function eventIdProcessed(eventId){
+  var isProcessed = CacheService.getScriptCache().get(eventId);
+  if(isProcessed){
+    return true;
+  }else{
+    CacheService.getScriptCache().put(eventId,'proceeded', 60*5);
+    return false;
+  }
 }
 
 var credentials = {
@@ -24,17 +35,16 @@ function getSpreadsheet(){
 }
 
 function recodeWeight(w, utime){
-  //console.log('recodeWeight');
   var spreadsheet = getSpreadsheet();
   var d = new Date(utime*1000);
   spreadsheet.appendRow([d.getFullYear(), d.getMonth()+1, d.getDate(), d.getHours(), d.getMinutes(), w])
 }
 
 function eventHandler(e){
-  //console.log('eventHandler');
+  
   switch(e.type){
     case "message":
-      if (e.channel_type === 'im') {
+      if (e.channel_type === 'im' && !e.bot_id) {
         messageIm(e);
       }
       break;
@@ -42,12 +52,15 @@ function eventHandler(e){
 }
 
 function messageIm(e) {
-  //console.log('messageIm');
   var regFloat = /^\d+\.\d+$/;
   switch(true){
     case regFloat.test(e.text):
       recodeWeight(parseFloat(e.text), parseFloat(e.ts));
       replyDM(e, '記録されました');
+      break;
+    case e.text == 'ぐらふ':
+      var chart = buildLineChart();
+      uploadImage(e.channel, chart.getBlob());
       break;
   }
 }
@@ -70,7 +83,6 @@ function replyDM(e, message){
   };
   
   var response = UrlFetchApp.fetch(url, options)
-  console.log(response.getContentText());
 }
 
 function uploadImage(channel, imageBlob){
@@ -91,7 +103,6 @@ function uploadImage(channel, imageBlob){
   };
   
   var response = UrlFetchApp.fetch(url, options)
-  console.log(response.getContentText());
 }
 
 function buildLineChart(){
